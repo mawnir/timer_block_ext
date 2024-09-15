@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocker and Timer</title>
+    <style>
+        :root {
+            --background: 220 14% 96%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 47.4% 11.2%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 47.4% 11.2%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
+            --radius: 0.5rem;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            width: 420px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            background-color: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1,
+        h3 {
+            color: hsl(var(--foreground));
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            /* Keep the main title centered */
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            text-align: left;
+            /* Align the subheadings to the left */
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 8px 0;
+            border: 1px solid hsl(var(--input));
+            border-radius: var(--radius);
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 8px 0;
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: hsl(var(--primary) / 0.9);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #blockOption {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        #blockCheckbox {
+            margin-right: 8px;
+        }
+
+        .site-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 16px;
+        }
+
+        .site-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: hsl(var(--accent));
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: var(--radius);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .site-name {
+            font-weight: 600;
+            color: hsl(var(--accent-foreground));
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        .site-controls {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .remove-btn,
+        .convert-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: calc(var(--radius) - 2px);
+            white-space: nowrap;
+        }
+
+        .remove-btn {
+            background-color: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+            width: 60px;
+        }
+
+        .remove-btn:hover {
+            background-color: hsl(var(--destructive) / 0.9);
+        }
+
+        .convert-btn {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .convert-btn:hover {
+            background-color: hsl(var(--secondary) / 0.8);
+        }
+
+        .time-unit {
+            font-size: 12px;
+            color: hsl(var(--muted-foreground));
+            margin-right: 6px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: hsl(var(--muted-foreground));
+            font-style: italic;
+        }
+
+        #settingsLink {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: hsl(var(--primary));
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        #settingsLink:hover {
+            text-decoration: underline;
+        }
+
+        /* Add this new style for the add button */
+        .add-button {
+            width: auto;
+            padding-left: 24px;
+            padding-right: 24px;
+            margin-left: auto;
+            /* This will push the button to the right */
+            margin-right: 8px;
+            /* Add a small right margin for spacing */
+            display: block;
+        }
+
+        /* Add these new styles for the toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Add this new toggle switch at the top -->
+        <div class="toggle-container">
+            <span>Enable Extension</span>
+            <label class="switch">
+                <input type="checkbox" id="extensionToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <h1>Blocker and Timer</h1>
+        <input type="text" id="websiteInput" placeholder="Enter website">
+        <input type="number" id="timeLimitInput" min="1" placeholder="Time limit (minutes)">
+        <div id="blockOption">
+            <input type="checkbox" id="blockCheckbox">
+            <label for="blockCheckbox">Block site entirely</label>
+        </div>
+        <!-- Add the 'add-button' class to the Add button -->
+        <button id="addButton" class="add-button">Add</button>
+
+        <h3>Blocked Sites:</h3>
+        <ul id="blockedList" class="site-list"></ul>
+
+        <h3>Time Limited Sites:</h3>
+        <ul id="timeLimitList" class="site-list"></ul>
+
+        <a href="#" id="settingsLink">Settings</a>
+    </div>
+
+    <template id="blockedSiteTemplate">
+        <li class="site-item">
+            <span class="site-name"></span>
+            <div class="site-controls">
+                <button class="convert-btn">Set Time</button>
+                <button class="remove-btn">Remove</button>
+            </div>
+        </li>
+    </template>
+
+    <template id="timeLimitSiteTemplate">
+        <li class="site-item">
+            <span class="site-name"></span>
+            <div class="site-controls">
+                <input type="number" class="time-limit-input" min="1" style="width: 70px;">
+                <span class="time-unit">min</span>
+                <button class="remove-btn">Remove</button>
+            </div>
+        </li>
+    </template>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
